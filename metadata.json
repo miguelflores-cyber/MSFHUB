@@ -1,0 +1,6 @@
+{
+  "name": "Portal CEUB e CIL",
+  "description": "Um portal acadêmico unificado com ambientes personalizados de alta fidelidade para o CEUB e o CIL, permitindo gerenciar tarefas, aulas e calendários de forma dinâmica.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

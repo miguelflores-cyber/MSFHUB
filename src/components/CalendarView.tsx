@@ -126,32 +126,32 @@ export default function CalendarView({
       <div id="calendar-left-grid" className="xl:col-span-3 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className={`text-3xl font-black tracking-tight ${isCEUB ? 'text-white' : 'text-[#003e6f]'}`}>
+            <h1 className={`text-2xl font-medium tracking-tight ${isCEUB ? 'text-white' : 'text-[#1A56B0] font-sans'}`}>
               Calendário
             </h1>
-            <p className="text-slate-400 text-sm font-medium mt-1">
+            <p className="text-slate-400 text-[14px] font-normal mt-1">
               {isCEUB
                 ? 'Organize provas, trabalhos e compromissos acadêmicos.'
                 : 'Organize avaliações, atividades e compromissos do CIL.'}
             </p>
           </div>
-
+          
           {/* Month Navigator Pills */}
-          <div className="flex items-center gap-2 p-1 bg-slate-300/10 border border-slate-300/10 rounded-xl">
+          <div className="flex items-center gap-2 p-1 bg-slate-300/10 border border-slate-300/10 rounded-md">
             <button
               onClick={handlePrevMonth}
-              className="p-2 cursor-pointer hover:bg-slate-300/20 rounded-lg text-slate-400 hover:text-white transition-colors"
+              className="p-1.5 cursor-pointer hover:bg-slate-300/20 rounded text-slate-400 hover:text-slate-600 transition-colors"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className={`text-xs font-black uppercase tracking-wider px-3 ${isCEUB ? 'text-purple-300' : 'text-blue-900'}`}>
+            <span className={`text-xs font-semibold uppercase tracking-wider px-2 ${isCEUB ? 'text-purple-300' : 'text-[#1A56B0]'}`}>
               {monthNames[currentMonth]} {currentYear}
             </span>
             <button
               onClick={handleNextMonth}
-              className="p-2 cursor-pointer hover:bg-slate-300/20 rounded-lg text-slate-400 hover:text-white transition-colors"
+              className="p-1.5 cursor-pointer hover:bg-slate-300/20 rounded text-slate-400 hover:text-slate-600 transition-colors"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -159,16 +159,16 @@ export default function CalendarView({
         {/* The Grid Days rendering */}
         <div
           id="calendar-grid-card"
-          className={`rounded-3xl p-6 border transition-all duration-500
+          className={`rounded-xl p-6 border transition-all duration-500
             ${
               isCEUB
-                ? 'bg-[#171f33]/90 border-purple-900/20 text-slate-100 shadow-[0_12px_40px_rgba(15,23,42,0.5)]'
-                : 'bg-white border-slate-200 text-slate-900 shadow-sm'
+                ? 'bg-[#1E1535] border-[#7C5CBF]/25 text-slate-100 shadow-sm'
+                : 'bg-white border-[#E2E8F0] text-slate-900 shadow-sm'
             }
           `}
         >
           {/* Days column headers banner */}
-          <div className="grid grid-cols-7 gap-1 text-center py-2.5 mb-2 font-black text-xs tracking-widest text-slate-400/80">
+          <div className="grid grid-cols-7 gap-1 text-center py-2.5 mb-2 font-medium text-[11px] tracking-wider text-slate-400">
             {daysOfWeek.map((day) => (
               <div key={day}>{day}</div>
             ))}
@@ -189,7 +189,8 @@ export default function CalendarView({
             {/* Natural active days */}
             {Array.from({ length: daysInMonthCount }).map((_, idx) => {
               const day = idx + 1;
-              const hasEvents = getDayEvents(day).length > 0;
+              const dayEvents = getDayEvents(day);
+              const hasEvents = dayEvents.length > 0;
               
               // Custom default today highlighters matching original images
               // CEUB: Oct 15 / CIL: May 8 or today's visual highlight
@@ -200,39 +201,71 @@ export default function CalendarView({
               let activeTodayStyle = '';
               if (isPristineToday) {
                 activeTodayStyle = isCEUB
-                  ? 'ring-4 ring-purple-500 bg-purple-600/30 text-white font-black animate-pulse'
-                  : 'bg-[#005696] text-white ring-4 ring-blue-500/20 font-black';
+                  ? 'ring-2 ring-purple-500 bg-purple-600/20 text-white font-black'
+                  : 'bg-[#1A56B0] text-white ring-2 ring-[#1A56B0]/15 font-medium';
               }
 
               return (
                 <div
                   key={`day-${day}`}
                   onClick={() => handleCellClick(day)}
-                  className={`relative cursor-pointer group flex flex-col justify-between items-center p-3 rounded-xl border transition-all hover:scale-[1.03] active:scale-95 min-h-[58px]
+                  className={`relative cursor-pointer group flex flex-col justify-between items-stretch p-2 rounded-lg border transition-all hover:scale-[1.01] active:scale-95 min-h-[82px] md:min-h-[96px] overflow-hidden
                     ${
                       isCEUB
-                        ? 'bg-slate-950/40 border-purple-500/5 hover:border-purple-500/30'
-                        : 'bg-slate-50 border-slate-200/50 hover:bg-blue-50/40 hover:border-blue-500/20'
+                        ? 'bg-[#1E1535]/30 border-[#7C5CBF]/10 hover:border-[#7C5CBF]/40'
+                        : 'bg-slate-50 border-[#E2E8F0]/50 hover:bg-[#EBF2FF]/30 hover:border-[#1A56B0]/25'
                     }
                     ${activeTodayStyle}
                   `}
                 >
-                  <span className="text-xs font-bold font-mono self-start">{day}</span>
+                  <div className="flex justify-between items-center w-full mb-1.5">
+                    <span className="text-xs font-bold font-mono">{day}</span>
+                    {hasEvents && (
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full md:hidden
+                          ${isCEUB ? 'bg-purple-400' : 'bg-blue-600'}
+                        `}
+                      />
+                    )}
+                  </div>
 
-                  {/* Indicator Dot for schedule items */}
-                  {hasEvents && !isPristineToday && (
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full absolute bottom-2
-                        ${isCEUB ? 'bg-purple-400' : 'bg-blue-600'}
-                      `}
-                    />
-                  )}
+                  {/* Inline list of events directly inside the block */}
+                  <div className="flex-1 flex flex-col gap-1 w-full overflow-hidden">
+                    {dayEvents.slice(0, 2).map((ev) => {
+                      const isProva = ev.category === 'provas';
+                      let eventBadgeStyle = '';
+                      if (isCEUB) {
+                        eventBadgeStyle = isProva
+                          ? 'bg-rose-500/10 border border-rose-500/20 text-rose-300'
+                          : 'bg-purple-500/10 border border-[#7C5CBF]/20 text-purple-200';
+                      } else {
+                        eventBadgeStyle = isProva
+                          ? 'bg-rose-50 border border-rose-250 text-rose-700'
+                          : 'bg-[#EBF2FF] border border-[#EBF2FF] text-[#1A56B0]';
+                      }
+
+                      return (
+                        <div
+                          key={ev.id}
+                          className={`hidden md:block text-[9px] px-1 py-0.5 rounded truncate w-full font-medium leading-tight ${eventBadgeStyle}`}
+                          title={`${ev.time} - ${ev.title}`}
+                        >
+                          {ev.title}
+                        </div>
+                      );
+                    })}
+                    {dayEvents.length > 2 && (
+                      <p className="hidden md:block text-[8px] text-slate-400 font-medium pl-1 leading-none mt-0.5">
+                        + {dayEvents.length - 2} mais
+                      </p>
+                    )}
+                  </div>
 
                   {/* Tooltip display list */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 border border-slate-800 text-slate-200 text-[10px] p-2 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 shadow-2xl pointer-events-none w-36 max-w-sm">
                     <p className="font-bold border-b border-slate-800 pb-1 mb-1 text-center">Dia {day}</p>
                     {hasEvents ? (
-                      getDayEvents(day).map((ev) => (
+                      dayEvents.map((ev) => (
                         <p key={ev.id} className="truncate">• {ev.title}</p>
                       ))
                     ) : (
@@ -249,11 +282,11 @@ export default function CalendarView({
       {/* Right side: Sidebar list for scheduled events */}
       <div id="calendar-right-sidebar" className="space-y-6">
         <h3
-          className={`text-lg font-bold flex items-center gap-2 border-b pb-2
-            ${isCEUB ? 'text-purple-300 border-purple-900/20' : 'text-[#005696] border-slate-200'}
+          className={`text-[15px] font-medium flex items-center gap-2 border-b pb-2
+            ${isCEUB ? 'text-purple-300 border-[#7C5CBF]/20' : 'text-[#1A56B0] border-[#E2E8F0]'}
           `}
         >
-          <CircleDot className={`w-4 h-4 ${isCEUB ? 'text-purple-400' : 'text-blue-600'}`} />
+          <CircleDot className={`w-4 h-4 ${isCEUB ? 'text-purple-400' : 'text-[#1A56B0]'}`} />
           <span>Próximos Eventos ({sidebarEvents.length})</span>
         </h3>
 
@@ -270,15 +303,15 @@ export default function CalendarView({
               const shortDay = dateObj.getDate();
               const shortMonthStr = monthNames[dateObj.getMonth()].slice(0, 3);
               const customPriorityTag =
-                ev.category === 'provas' ? 'bg-rose-500/10 text-rose-500' : 'bg-emerald-500/10 text-emerald-500';
+                ev.category === 'provas' ? 'bg-rose-500/10 text-rose-500' : 'bg-emerald-500/10 text-[#74f174]';
 
               return (
                 <div
                   key={ev.id}
-                  className={`group relative rounded-2xl p-4.5 border transition-all duration-300 hover:scale-[1.02]
+                  className={`group relative rounded-xl p-4 border transition-all duration-300 hover:scale-[1.02]
                     ${
                       isCEUB
-                        ? 'bg-[#171f33]/90 hover:bg-[#1f2a44] border-purple-950 text-white'
+                        ? 'bg-[#1E1535] hover:bg-[#251A42] border-[#7C5CBF]/25 text-white'
                         : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-950'
                     }
                   `}

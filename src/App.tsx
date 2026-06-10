@@ -26,6 +26,12 @@ export default function App() {
   });
   const [events, setEvents] = useState<CalendarEvent[]>(INITIAL_CALENDAR_EVENTS);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [customModal, setCustomModal] = useState<{
+    title: string;
+    message: string;
+    type: 'confirm' | 'alert';
+    onConfirm?: () => void;
+  } | null>(null);
 
   // Math Counts
   const currentEnvTasks = tasks.filter((t) => t.environment === environment);
@@ -63,9 +69,14 @@ export default function App() {
 
   // Remove task
   const handleDeleteTask = (taskId: string) => {
-    if (confirm('Deseja realmente excluir esta atividade?')) {
-      setTasks((prev) => prev.filter((t) => t.id !== taskId));
-    }
+    setCustomModal({
+      title: 'Excluir Atividade',
+      message: 'Deseja realmente excluir esta atividade do seu cronograma acadêmico?',
+      type: 'confirm',
+      onConfirm: () => {
+        setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      },
+    });
   };
 
   // Add standard calendar event
@@ -80,9 +91,14 @@ export default function App() {
 
   // Delete calendar event
   const handleDeleteEvent = (eventId: string) => {
-    if (confirm('Deseja realmente remover este compromisso do calendário?')) {
-      setEvents((prev) => prev.filter((e) => e.id !== eventId));
-    }
+    setCustomModal({
+      title: 'Remover do Calendário',
+      message: 'Deseja realmente excluir este compromisso do seu calendário de eventos?',
+      type: 'confirm',
+      onConfirm: () => {
+        setEvents((prev) => prev.filter((e) => e.id !== eventId));
+      },
+    });
   };
 
   // Edit profile parameters
@@ -94,12 +110,18 @@ export default function App() {
   const handleOpenNotifications = () => {
     const pendingNames = currentEnvTasks.filter((t) => !t.completed).map((t) => t.title);
     if (pendingNames.length === 0) {
-      alert(`Parabéns ${profile.name}! Sem pendências acadêmicas no momento para o ambiente ${environment}.`);
+      setCustomModal({
+        title: 'Central de Notificações',
+        message: `Tudo limpo por aqui! Parabéns ${profile.name}, você concluiu todas as suas pendências acadêmicas do Portal ${environment}.`,
+        type: 'alert',
+      });
     } else {
-      alert(
-        `Olá ${profile.name}! Você possui ${pendingNames.length} pendências no Portal ${environment} para revisar:\n\n` +
-          pendingNames.map((name, i) => `${i + 1}. ${name}`).join('\n')
-      );
+      setCustomModal({
+        title: 'Central de Notificações',
+        message: `Olá ${profile.name}! Você possui ${pendingNames.length} pendências no Portal ${environment} para revisar:\n\n` +
+          pendingNames.map((name, i) => `• ${name}`).join('\n'),
+        type: 'alert',
+      });
     }
   };
 
@@ -192,6 +214,7 @@ export default function App() {
                 onToggleTaskCompletion={handleToggleTaskCompletion}
                 cilClasses={INITIAL_CIL_CLASSES}
                 studentName={profile.name}
+                profile={profile}
               />
             )}
 
@@ -226,6 +249,67 @@ export default function App() {
           </main>
         </div>
       </div>
+
+      {/* Custom Alert/Confirm Modal Dialog Overlay */}
+      {customModal && (
+        <div
+          id="custom-app-dialog"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in"
+        >
+          <div
+            id="custom-app-dialog-card"
+            className={`w-full max-w-md rounded-2xl p-6 border shadow-2xl flex flex-col space-y-4 animate-scale-up
+              ${
+                isCEUB
+                  ? 'bg-[#131b2e] border-purple-900/60 text-slate-100'
+                  : 'bg-white border-slate-200 text-slate-800'
+              }
+            `}
+          >
+            <div className="flex justify-between items-center pb-2 border-b border-slate-100/10">
+              <h3 className={`text-base font-black tracking-tight ${isCEUB ? 'text-purple-300' : 'text-[#003e6f]'}`}>
+                {customModal.title}
+              </h3>
+            </div>
+
+            <p className={`text-sm font-medium whitespace-pre-line leading-relaxed ${isCEUB ? 'text-slate-300' : 'text-slate-600'}`}>
+              {customModal.message}
+            </p>
+
+            <div className="flex gap-3 justify-end pt-2 border-t border-slate-100/10">
+              {customModal.type === 'confirm' && (
+                <button
+                  type="button"
+                  onClick={() => setCustomModal(null)}
+                  className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors
+                    ${isCEUB ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-850'}
+                  `}
+                >
+                  Cancelar
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (customModal.type === 'confirm' && customModal.onConfirm) {
+                    customModal.onConfirm();
+                  }
+                  setCustomModal(null);
+                }}
+                className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white shadow-md hover:scale-[1.01] active:scale-95 transition-all
+                  ${
+                    isCEUB
+                      ? 'bg-purple-600 hover:bg-purple-700'
+                      : 'bg-[#005696] hover:bg-[#004880]'
+                  }
+                `}
+              >
+                {customModal.type === 'confirm' ? 'Confirmar' : 'Entendido'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

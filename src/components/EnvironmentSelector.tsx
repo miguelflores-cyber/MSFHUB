@@ -69,14 +69,8 @@ export default function EnvironmentSelector({
 
         {/* Content Group with delay */}
         <div className="relative text-center px-8 max-w-sm flex flex-col items-center select-none space-y-6">
-          <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-            <Sparkles className="w-5 h-5 animate-pulse" />
-          </div>
 
           <div className="space-y-2">
-            <span className="text-[10px] bg-purple-900/40 text-purple-300 font-black px-3 py-1 rounded-full uppercase tracking-widest border border-purple-500/15">
-              AMBIENTE UNIVERSITÁRIO
-            </span>
             <div className="w-60 md:w-68 mx-auto py-3 filter drop-shadow-[0_0_25px_rgba(142,45,226,0.4)]">
               <img
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgxTimDpBU0iBVFusdw3YAkijS14q-PDP-rsR9-uaoG0HJ_tnVeTyZQ-o2vjGudOwVayq3cVF8glZ5h5_iadxSg_imTIryl19sEkfdLpjVumiHIaZmg_9upicvGTEFpv4cFmBoo7pepqtqtbH-ICK-DStrajZ5WuqDyk4i0KEbZkwr339MkCxzqoDyj8SQMOTxwRFsGSodk88ksweK9dKcAD-RVeGzpIuTjTtULA3SS_lT-aSsVuzRM-yyC96ix4gduPufkc-KsC9G"
@@ -130,14 +124,8 @@ export default function EnvironmentSelector({
 
         {/* Content Group */}
         <div className="relative text-center px-8 max-w-sm flex flex-col items-center select-none space-y-6">
-          <div className="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-600/20 flex items-center justify-center text-blue-600">
-            <Globe className="w-5 h-5 animate-spin-slow text-blue-600" />
-          </div>
 
           <div className="space-y-2">
-            <span className="text-[10px] bg-blue-100 text-blue-800 font-extrabold px-3 py-1 rounded-full uppercase tracking-widest border border-blue-300/30">
-              CENTRO DE IDIOMAS (CIL)
-            </span>
             <div className="w-60 md:w-68 mx-auto py-3 filter drop-shadow-[0_0_20px_rgba(0,86,150,0.15)]">
               <img
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGm7pZoPL83jrSCweCwtJ4mrqypow_vCk6qMDCzodKqk6mpNgwZUVmipskJ-92VD44fe1MdNh_NRQA5fo6Qp4jn2E-sKN4VO83Q4yC8x2qSYgcRXzgo5z7Uyoy4Hu81e4HTcBp8NZgwKEoSiynjwVFAjQkq1x9_igA-CEogvrad4vl09qb01KBYOGm3CVLnCmrRLcJWYZZqKvLlzgpKFLLWUnsIYbCg_sx5yzUeQnnRbSDRqc7-yp0IDaSBXhKJ_-IzyelL66ulrEr"

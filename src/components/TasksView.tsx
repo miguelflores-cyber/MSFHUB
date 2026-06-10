@@ -80,11 +80,11 @@ export default function TasksView({
         <div>
           <h1
             id="tasks-title-h1"
-            className={`text-3xl font-black tracking-tight ${isCEUB ? 'text-white' : 'text-[#003e6f]'}`}
+            className={`text-2xl font-medium tracking-tight ${isCEUB ? 'text-white' : 'text-[#1A56B0] font-sans'}`}
           >
             Tarefas {isCEUB ? '' : '• CIL Idiomas'}
           </h1>
-          <p className="text-slate-400 text-sm font-medium mt-1">
+          <p className="text-slate-400 text-[14px] font-normal mt-1">
             {isCEUB
               ? 'Organize suas atividades acadêmicas.'
               : 'Organize suas atividades e estudos de idiomas.'}
@@ -95,15 +95,15 @@ export default function TasksView({
         <button
           id="trigger-add-task-btn"
           onClick={() => setIsNewTaskModalOpen(true)}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]
+          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-md font-medium transition-all shadow-sm hover:scale-[1.01] active:scale-[0.99] text-sm
             ${
               isCEUB
                 ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-purple-600/10 hover:shadow-purple-600/30 font-extrabold'
-                : 'bg-[#005696] hover:bg-[#004880] text-white shadow-blue-500/10 hover:shadow-blue-500/30'
+                : 'bg-[#1A56B0] hover:bg-[#154690] text-white shadow-sm'
             }
           `}
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           <span>Nova Tarefa</span>
         </button>
       </div>
@@ -224,11 +224,11 @@ export default function TasksView({
                 </button>
                 <button
                   type="submit"
-                  className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white shadow-md hover:scale-[1.01] active:scale-95 transition-all
+                  className={`px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all
                     ${
                       isCEUB
                         ? 'bg-purple-600 hover:bg-purple-700'
-                        : 'bg-[#005696] hover:bg-[#004880]'
+                        : 'bg-[#1A56B0] hover:bg-[#154690]'
                     }
                   `}
                 >
@@ -246,17 +246,17 @@ export default function TasksView({
         {/* Column 1: Pedeing Tasks */}
         <div id="col-pending" className="flex flex-col space-y-4">
           <h2
-            className={`text-lg font-bold flex items-center gap-2 border-b pb-2
-              ${isCEUB ? 'text-purple-300 border-purple-900/20' : 'text-[#005696] border-slate-200'}
+            className={`text-[13px] font-medium uppercase tracking-wider flex items-center gap-2 border-b pb-2
+              ${isCEUB ? 'text-purple-300 border-purple-900/20' : 'text-slate-500 border-slate-200'}
             `}
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
+            <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
             <span>Pendentes ({pendingTasks.length})</span>
           </h2>
 
           <div id="pending-list" className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             {pendingTasks.length === 0 ? (
-              <div id="empty-pending" className="text-center py-12 p-6 rounded-2xl border border-dashed border-slate-300/20">
+              <div id="empty-pending" className="text-center py-12 p-6 rounded-xl border border-dashed border-slate-250">
                 <CheckCircle className="w-10 h-10 text-emerald-500/40 mx-auto mb-2" />
                 <p className="text-sm font-semibold text-slate-400">Excelente! Todas as tarefas concluídas!</p>
               </div>
@@ -275,21 +275,21 @@ export default function TasksView({
                 return (
                   <div
                     key={task.id}
-                    className={`group relative rounded-2xl p-5 border transition-all duration-300 hover:scale-[1.01] shadow-sm
+                    className={`group relative rounded-xl p-5 border transition-all duration-300 hover:scale-[1.01] shadow-sm
                       ${
                         isCEUB
-                          ? 'bg-[#171f33]/90 hover:bg-[#1a233b] border-purple-900/30 hover:border-purple-500/30 text-white'
-                          : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-blue-500/30 text-slate-900'
+                          ? 'bg-[#1E1535] hover:bg-[#251A42] border-[#7C5CBF]/25 hover:border-[#7C5CBF]/45 text-white'
+                          : 'bg-white hover:bg-slate-50 border-[#E2E8F0] hover:border-[#1A56B0]/20 text-slate-900'
                       }
                     `}
                   >
                     {/* Visual Hover Gradient */}
                     {isCEUB && (
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.02] to-transparent rounded-2xl pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.01] to-transparent rounded-xl pointer-events-none" />
                     )}
 
                     <div className="flex justify-between items-start mb-2 relative z-10">
-                      <h3 className="font-extrabold text-sm md:text-base pr-4 leading-tight">
+                      <h3 className="font-medium text-[15px] pr-4 leading-tight">
                         {task.title}
                       </h3>
                       <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1.5 rounded-full border ${priorityBadge}`}>
@@ -338,17 +338,17 @@ export default function TasksView({
         {/* Column 2: Completed Tasks */}
         <div id="col-completed" className="flex flex-col space-y-4">
           <h2
-            className={`text-lg font-bold flex items-center gap-2 border-b pb-2
-              ${isCEUB ? 'text-purple-300 border-purple-900/20' : 'text-[#005696] border-slate-200'}
+            className={`text-[13px] font-medium uppercase tracking-wider flex items-center gap-2 border-b pb-2
+              ${isCEUB ? 'text-purple-300 border-purple-900/20' : 'text-slate-500 border-slate-200'}
             `}
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
             <span>Concluídas ({completedTasks.length})</span>
           </h2>
 
           <div id="completed-list" className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             {completedTasks.length === 0 ? (
-              <div id="empty-completed" className="text-center py-12 p-6 rounded-2xl border border-dashed border-slate-300/20">
+              <div id="empty-completed" className="text-center py-12 p-6 rounded-xl border border-dashed border-slate-250">
                 <AlertTriangle className="w-10 h-10 text-amber-500/30 mx-auto mb-2" />
                 <p className="text-sm font-semibold text-slate-400">Nenhuma tarefa concluída nesta semana.</p>
               </div>
@@ -357,16 +357,16 @@ export default function TasksView({
                 return (
                   <div
                     key={task.id}
-                    className={`rounded-2xl p-5 border transition-all duration-300 opacity-70
+                    className={`rounded-xl p-5 border transition-all duration-300 opacity-70
                       ${
                         isCEUB
-                          ? 'bg-[#171f33]/40 border-purple-900/10 text-slate-400'
-                          : 'bg-slate-50 border-slate-200 text-slate-500'
+                          ? 'bg-[#1E1535]/50 border-[#7C5CBF]/15 text-slate-400'
+                          : 'bg-slate-50 border-[#E2E8F0] text-slate-500'
                       }
                     `}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-extrabold text-sm md:text-base leading-tight line-through text-slate-400/80">
+                      <h3 className="font-medium text-[15px] leading-tight line-through text-slate-400/80">
                         {task.title}
                       </h3>
                       <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-300/10">

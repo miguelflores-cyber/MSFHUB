@@ -30,10 +30,10 @@ export default function TopBar({
   return (
     <header
       id="top-bar-header"
-      className={`fixed top-0 right-0 left-64 h-20 px-8 z-30 flex justify-between items-center transition-all duration-500 border-b
+      className={`fixed top-0 right-0 left-64 h-16 px-8 z-30 flex justify-between items-center transition-all duration-500 border-b
         ${
           isCEUB
-            ? 'bg-[#0b1326]/80 backdrop-blur-md border-purple-900/20 text-slate-100'
+            ? 'bg-[#1A1025]/90 backdrop-blur-md border-[#7C5CBF]/15 text-slate-100'
             : 'bg-white/90 backdrop-blur-md border-slate-200 text-slate-800'
         }
       `}
@@ -43,18 +43,18 @@ export default function TopBar({
         <button
           id="env-toggle-pill"
           onClick={toggleEnvironment}
-          className={`flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 group shadow-sm
+          className={`flex items-center gap-2 px-3 py-1.5 rounded border text-[11px] font-medium uppercase tracking-wider transition-all duration-300 group
             ${
               isCEUB
-                ? 'bg-purple-950/40 border border-purple-500/30 text-purple-300 hover:bg-purple-900/40'
+                ? 'bg-[#1E1535]/50 border-purple-500/15 text-purple-200 hover:bg-purple-900/20'
                 : 'bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100'
             }
           `}
           title="Clique para alternar o ambiente institucional"
         >
-          <span className={`w-2 h-2 rounded-full ${isCEUB ? 'bg-purple-400 animate-pulse' : 'bg-blue-500'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${isCEUB ? 'bg-purple-400' : 'bg-blue-500'}`} />
           <span>AMBIENTE: {environment}</span>
-          <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform duration-500" />
+          <ArrowLeftRight className="w-3 h-3 text-slate-400 group-hover:rotate-180 transition-transform duration-500" />
         </button>
 
         <span className="text-xs text-slate-400 font-medium hidden lg:inline">
@@ -64,7 +64,7 @@ export default function TopBar({
 
       {/* Right side: Tools, Date and User profile */}
       <div className="flex items-center gap-6">
-        <span className="text-sm font-medium opacity-80 hidden md:inline">
+        <span className="text-xs uppercase tracking-wider text-slate-450 font-normal hidden md:inline">
           {formattedDate}
         </span>
 

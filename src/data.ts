@@ -3,8 +3,8 @@ import { Task, AcademicClass, CalendarEvent, StudentProfile } from './types';
 export const INITIAL_PROFILE: StudentProfile = {
   name: 'Miguel Flores',
   email: 'miguel.flores@sempreceub.com',
-  activeLanguage: 'Inglês Avançado',
-  module: 'Módulo 4 em andamento',
+  activeLanguage: 'Inglês E1 Básico',
+  module: 'Módulo em andamento',
   progress: 75,
 };
 

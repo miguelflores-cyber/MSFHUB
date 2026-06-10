@@ -33,7 +33,7 @@ export default function Sidebar({
       className={`fixed left-0 top-0 h-full w-64 z-40 border-r transition-all duration-500 flex flex-col justify-between py-6 px-4
         ${
           isCEUB
-            ? 'bg-[#0f172a]/95 border-purple-900/40 text-slate-100 shadow-[4px_0_24px_rgba(15,23,42,0.6)]'
+            ? 'bg-[#130B1E] border-purple-950/20 text-slate-100 shadow-[4px_0_24px_rgba(19,11,30,0.5)]'
             : 'bg-white border-slate-200 text-slate-900 shadow-sm'
         }
       `}
@@ -43,34 +43,29 @@ export default function Sidebar({
         <div id="sidebar-header" className="px-3 mb-8 transition-all duration-500">
           {isCEUB ? (
             <div id="brand-ceub" className="group">
-              <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
-                <span className="w-2.5 h-6 bg-purple-600 rounded-full inline-block animate-pulse"></span>
+              <h1 className="text-xl font-bold font-brand tracking-tight text-white flex items-center gap-2">
+                <span className="w-1 h-5 bg-purple-500 rounded-sm inline-block shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span>
                 Portal CEUB
               </h1>
-              <p className="text-xs text-purple-300/70 font-medium tracking-wide mt-1">
+              <p className="text-[11px] text-purple-300/60 font-medium tracking-wide mt-1 font-sans">
                 Ambiente Acadêmico
               </p>
             </div>
           ) : (
-            <div id="brand-cil" className="flex flex-col items-center text-center p-3 rounded-2xl bg-slate-50 border border-slate-100">
-              {/* Specialized CIL visual circle */}
-              <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white mb-2 shadow-md relative overflow-hidden group">
-                <div className="absolute inset-0 bg-blue-500 rounded-full scale-90 translate-x-1 translate-y-1"></div>
-                <Globe className="w-8 h-8 text-white relative z-10 animate-spin-slow" />
-                <div className="absolute top-1 right-1 bg-amber-400 text-[10px] font-black px-1 rounded text-slate-950 scale-90 z-20">CIL</div>
-              </div>
-              <h1 className="text-[17px] font-extrabold tracking-tight text-[#003e6f] leading-tight">
-                CIL Institutional
+            <div id="brand-cil" className="group">
+              <h1 className="text-xl font-bold font-brand tracking-tight text-[#1A56B0] flex items-center gap-2">
+                <span className="w-1 h-5 bg-[#1A56B0] rounded-sm inline-block shadow-[0_0_8px_rgba(26,86,176,0.3)]"></span>
+                Portal CIL
               </h1>
-              <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
-                Language Command Center
+              <p className="text-[11px] text-slate-500 font-medium tracking-wide mt-1 font-sans">
+                Centro de Idiomas e Línguas
               </p>
             </div>
           )}
         </div>
 
         {/* Dynamic Sidebar menu list */}
-        <nav id="sidebar-nav" className="space-y-1">
+        <nav id="sidebar-nav" className="space-y-0.5">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -78,12 +73,12 @@ export default function Sidebar({
             let buttonClass = '';
             if (isCEUB) {
               buttonClass = isActive
-                ? 'bg-purple-900/30 text-purple-300 border-r-4 border-purple-500 font-semibold shadow-[index_0_0_15px_rgba(168,85,247,0.1)]'
-                : 'text-slate-400 hover:bg-slate-800/40 hover:text-white';
+                ? 'bg-purple-950/25 text-purple-300 border-l-[3px] border-purple-500 font-medium px-4 py-2.5 text-[13px] rounded-none rounded-r-md'
+                : 'text-slate-400 hover:bg-purple-950/15 hover:text-white px-4 py-2.5 text-[13px] rounded-none rounded-r-md';
             } else {
               buttonClass = isActive
-                ? 'bg-[#005696] text-white font-semibold rounded-xl shadow-md shadow-[#005696]/20'
-                : 'text-slate-600 hover:bg-blue-50 hover:text-[#003e6f] rounded-xl';
+                ? 'bg-[#EBF2FF] text-[#1A56B0] border-l-[3px] border-[#1A56B0] font-medium px-4 py-2.5 text-[13px] rounded-none rounded-r-md'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-[#1A56B0] px-4 py-2.5 text-[13px] rounded-none rounded-r-md';
             }
 
             return (
@@ -91,11 +86,13 @@ export default function Sidebar({
                 key={item.id}
                 id={`menu-item-${item.id}`}
                 onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-3 w-full px-4 py-3.5 text-sm transition-all duration-300 rounded-lg group ${buttonClass}`}
+                className={`flex items-center gap-3 w-full transition-all duration-300 group
+                  ${buttonClass}
+                `}
               >
                 <Icon
-                  className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 
-                    ${isActive ? 'scale-105' : 'opacity-85'}
+                  className={`transition-transform duration-300 group-hover:scale-105 w-4 h-4
+                    ${isActive ? 'scale-100' : 'opacity-85'}
                   `}
                 />
                 <span>{item.label}</span>
@@ -112,9 +109,9 @@ export default function Sidebar({
           <button
             id="cil-quick-add-btn"
             onClick={onOpenNewTaskModal}
-            className="w-full bg-[#ffbb16] hover:bg-[#e4a60f] text-[#271900] font-black py-3 px-4 rounded-xl shadow-lg shadow-amber-500/20 text-xs tracking-wider uppercase flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all"
+            className="w-full bg-[#f5a623] hover:bg-[#e09315] text-slate-900 font-medium py-2 px-3 rounded-md shadow-sm text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all"
           >
-            <span>+ Nova Atividade</span>
+            <span className="font-semibold">+ Nova Atividade</span>
           </button>
         )}
 
@@ -122,18 +119,17 @@ export default function Sidebar({
         <button
           id="logout-button"
           onClick={() => {
-            alert(`Sessão do aluno ${studentName} finalizada com sucesso.`);
             onLogout();
           }}
-          className={`flex items-center gap-3 w-full px-4 py-3.5 text-sm font-medium transition-all duration-300 rounded-xl group
+          className={`flex items-center gap-3 w-full transition-all duration-300 group text-[13px] py-2.5 px-4 rounded-none rounded-r-md
             ${
               isCEUB
-                ? 'text-slate-400 hover:bg-slate-800/40 hover:text-rose-400'
-                : 'text-slate-500 hover:bg-rose-50 hover:text-rose-600'
+                ? 'text-slate-400 hover:bg-purple-950/15 hover:text-rose-300'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-rose-600'
             }
           `}
         >
-          <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           <span>{isCEUB ? 'Logout' : 'Sair'}</span>
         </button>
       </div>

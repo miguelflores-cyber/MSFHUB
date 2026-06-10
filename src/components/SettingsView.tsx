@@ -117,10 +117,12 @@ export default function SettingsView({
                   }
                 `}
               >
-                <option value="Inglês Avançado">Inglês Avançado (Avançado B2/C1)</option>
-                <option value="Francês B1">Francês Intermediário (B1)</option>
-                <option value="Espanhol Avançado">Espanhol Fluente (C1)</option>
-                <option value="Alemão Iniciante">Alemão Básico (A1/A2)</option>
+                <option value="Inglês E1 Básico">Inglês E1 Básico</option>
+                <option value="Inglês E2 Básico">Inglês E2 Básico</option>
+                <option value="Inglês E3 Básico">Inglês E3 Básico</option>
+                <option value="Inglês E4 Intermediário">Inglês E4 Intermediário</option>
+                <option value="Inglês E5 Intermediário">Inglês E5 Intermediário</option>
+                <option value="Inglês E6 Intermediário">Inglês E6 Intermediário</option>
               </select>
             </div>
 

@@ -18,9 +18,94 @@ import LoginScreen from './components/LoginScreen';
 import { getCurrentUser, signOutUser } from './lib/auth';
 import { supabase } from './lib/supabase';
 
+// Map database rows to local Task interface safely
+function mapDBTaskToTask(row: any): Task {
+  return {
+    id: String(row.id || `task-${Date.now()}`),
+    title: row.titulo || row.title || 'Sem Título',
+    description: row.descricao || row.description || '',
+    priority: (row.prioridade || row.priority || 'MÉDIA').toUpperCase() as 'ALTA' | 'MÉDIA' | 'BAIXA',
+    dueDate: row.prazo || row.due_date || 'Hoje',
+    dueDateRaw: row.prazo_raw || row.due_date_raw || new Date().toISOString().split('T')[0],
+    completed: row.concluida !== undefined ? !!row.concluida : !!(row.completed || false),
+    environment: (row.ambiente || row.environment || 'CEUB').toUpperCase() as 'CEUB' | 'CIL',
+    completedAt: row.completed_at || row.completedAt,
+  };
+}
+
+// Resilient multi-schema database insert helper for table 'tarefa'
+async function insertTarefa(task: Task, userId: string): Promise<{ data: any[] | null; error: any }> {
+  const schemasToTry = [
+    // Portuguese standard columns matching typical user migrations
+    {
+      id: task.id,
+      titulo: task.title,
+      descricao: task.description,
+      prioridade: task.priority,
+      prazo: task.dueDate,
+      prazo_raw: task.dueDateRaw,
+      concluida: task.completed,
+      ambiente: task.environment,
+      user_id: userId
+    },
+    // Portuguese standard columns with usuario_id
+    {
+      id: task.id,
+      titulo: task.title,
+      descricao: task.description,
+      prioridade: task.priority,
+      prazo: task.dueDate,
+      prazo_raw: task.dueDateRaw,
+      concluida: task.completed,
+      ambiente: task.environment,
+      usuario_id: userId
+    },
+    // English standard keys
+    {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      due_date: task.dueDate,
+      due_date_raw: task.dueDateRaw,
+      concluida: task.completed,
+      environment: task.environment,
+      user_id: userId
+    },
+    // Minimal fallback setup
+    {
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      concluida: task.completed,
+      user_id: userId
+    }
+  ];
+
+  let lastError = null;
+  for (const schema of schemasToTry) {
+    try {
+      const { data, error } = await supabase.from('tarefa').insert([schema]).select();
+      if (!error) {
+        return { data, error: null };
+      }
+      lastError = error;
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  return { data: null, error: lastError };
+}
+
 export default function App() {
   // Global States
-  const [user, setUser] = useState<{ email: string; name?: string } | null>(() => getCurrentUser());
+  const [user, setUser] = useState<{ id?: string; email: string; name?: string } | null>(() => {
+    const u = getCurrentUser();
+    if (u) {
+      return { id: 'local-user-id', ...u };
+    }
+    return null;
+  });
   const [loadingSession, setLoadingSession] = useState(true);
   const [environment, setEnvironment] = useState<Environment>('CEUB');
   const [hasChosenEnvironment, setHasChosenEnvironment] = useState(false);
@@ -41,6 +126,7 @@ export default function App() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           const loadedUser = {
+            id: session.user.id,
             email: session.user.email || '',
             name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Estudante',
           };
@@ -54,7 +140,11 @@ export default function App() {
           // Fallback to check localStorage local session
           const localUser = getCurrentUser();
           if (localUser) {
-            setUser(localUser);
+            setUser({
+              id: 'local-user-id',
+              email: localUser.email,
+              name: localUser.name,
+            });
           }
         }
       } catch (err) {
@@ -69,6 +159,50 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>(() => {
     return [...INITIAL_CEUB_TASAS, ...INITIAL_CIL_TASKS];
   });
+
+  // Fetch tasks from 'tarefa' table on Supabase when logged-in user changes
+  useEffect(() => {
+    if (!user) return;
+
+    const loadTasksFromSupabase = async () => {
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        const userId = authUser?.id || user.id || 'local-user-id';
+
+        // Attempt querying with database filters
+        let { data, error } = await supabase
+          .from('tarefa')
+          .select('*')
+          .or(`user_id.eq.${userId},usuario_id.eq.${userId}`);
+
+        // Handle fallback filtering if column or query fails
+        if (error || !data) {
+          const { data: simpleData, error: simpleError } = await supabase.from('tarefa').select('*');
+          if (!simpleError && simpleData) {
+            data = simpleData.filter((item: any) => 
+              item.user_id === userId || 
+              item.usuario_id === userId || 
+              item.user_id === 'local-user-id' ||
+              (!item.user_id && !item.usuario_id)
+            );
+          } else {
+            console.warn('Erro ao carregar tarefas via Supabase, usando dados estáticos:', error || simpleError);
+            return;
+          }
+        }
+
+        if (data) {
+          const loadedTasks = data.map((item: any) => mapDBTaskToTask(item));
+          setTasks(loadedTasks);
+        }
+      } catch (err) {
+        console.error('Falha de processamento ao ler tarefas do Supabase:', err);
+      }
+    };
+
+    loadTasksFromSupabase();
+  }, [user]);
+
   const [events, setEvents] = useState<CalendarEvent[]>(INITIAL_CALENDAR_EVENTS);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [customModal, setCustomModal] = useState<{
@@ -85,31 +219,78 @@ export default function App() {
   const isCEUB = environment === 'CEUB';
 
   // Toggle tasks
-  const handleToggleTaskCompletion = (taskId: string) => {
+  const handleToggleTaskCompletion = async (taskId: string) => {
+    let targetTask: Task | undefined;
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id === taskId) {
           const completed = !t.completed;
-          return {
+          targetTask = {
             ...t,
             completed,
             completedAt: completed ? new Date().toISOString() : undefined,
           };
+          return targetTask;
         }
         return t;
       })
     );
+
+    // Persist to Supabase
+    try {
+      const isCompletedNow = targetTask ? targetTask.completed : true;
+      const { error } = await supabase
+        .from('tarefa')
+        .update({ concluida: isCompletedNow })
+        .eq('id', taskId);
+
+      if (error) {
+        // Safe fallback in case table structure differs slightly
+        const { error: errorAlt } = await supabase
+          .from('tarefa')
+          .update({ completed: isCompletedNow })
+          .eq('id', taskId);
+        
+        if (errorAlt) {
+          console.error('Erro ao atualizar conclusão:', errorAlt);
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao persistir conclusão no Supabase:', err);
+    }
   };
 
   // Add standard task
-  const handleAddTask = (taskDetails: Omit<Task, 'id' | 'completed' | 'environment'>) => {
+  const handleAddTask = async (taskDetails: Omit<Task, 'id' | 'completed' | 'environment'>) => {
+    const tempId = `task-${Date.now()}`;
     const newTask: Task = {
       ...taskDetails,
-      id: `task-${Date.now()}`,
+      id: tempId,
       completed: false,
       environment: environment,
     };
+
+    // Optimistic UI insert
     setTasks((prev) => [newTask, ...prev]);
+
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const userId = authUser?.id || user?.id || 'local-user-id';
+
+      // Insert using dynamic schema sequence
+      const { data, error } = await insertTarefa(newTask, userId);
+      if (error) {
+        console.error('Erro ao inserir tarefa via Supabase:', error);
+      } else if (data && data[0]) {
+        // Update temporary ID with the registered record ID
+        const savedTask = mapDBTaskToTask(data[0]);
+        setTasks((prev) =>
+          prev.map((t) => (t.id === tempId ? { ...savedTask } : t))
+        );
+      }
+    } catch (err) {
+      console.error('Erro ao salvar nova tarefa no Supabase:', err);
+    }
   };
 
   // Remove task
@@ -118,8 +299,18 @@ export default function App() {
       title: 'Excluir Atividade',
       message: 'Deseja realmente excluir esta atividade do seu cronograma acadêmico?',
       type: 'confirm',
-      onConfirm: () => {
+      onConfirm: async () => {
+        // Optimistic delete
         setTasks((prev) => prev.filter((t) => t.id !== taskId));
+
+        try {
+          const { error } = await supabase.from('tarefa').delete().eq('id', taskId);
+          if (error) {
+            console.error('Erro ao deletar tarefa via Supabase:', error);
+          }
+        } catch (err) {
+          console.error('Erro ao processar remoção:', err);
+        }
       },
     });
   };

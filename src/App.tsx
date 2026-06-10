@@ -14,24 +14,13 @@ import TasksView from './components/TasksView';
 import CalendarView from './components/CalendarView';
 import SettingsView from './components/SettingsView';
 import EnvironmentSelector from './components/EnvironmentSelector';
-import LoginScreen from './components/LoginScreen';
-import { getCurrentUser, signOutUser } from './lib/auth';
 
 export default function App() {
   // Global States
-  const [user, setUser] = useState<{ email: string; name?: string } | null>(() => getCurrentUser());
   const [environment, setEnvironment] = useState<Environment>('CEUB');
   const [hasChosenEnvironment, setHasChosenEnvironment] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
-  const [profile, setProfile] = useState<StudentProfile>(() => {
-    const currentUser = getCurrentUser();
-    return {
-      ...INITIAL_PROFILE,
-      name: currentUser?.name || INITIAL_PROFILE.name,
-      email: currentUser?.email || INITIAL_PROFILE.email,
-    };
-  });
-
+  const [profile, setProfile] = useState<StudentProfile>(INITIAL_PROFILE);
   const [tasks, setTasks] = useState<Task[]>(() => {
     return [...INITIAL_CEUB_TASAS, ...INITIAL_CIL_TASKS];
   });
@@ -136,19 +125,6 @@ export default function App() {
     }
   };
 
-  const handleLoginSuccess = (userInfo: { name: string; email: string }) => {
-    setUser(userInfo);
-    setProfile((prev) => ({
-      ...prev,
-      name: userInfo.name,
-      email: userInfo.email,
-    }));
-  };
-
-  if (!user) {
-    return <LoginScreen onSuccess={handleLoginSuccess} />;
-  }
-
   if (!hasChosenEnvironment) {
     return (
       <EnvironmentSelector
@@ -209,11 +185,7 @@ export default function App() {
             setActiveTab('tarefas');
             setIsNewTaskModalOpen(true);
           }}
-          onLogout={() => {
-            signOutUser();
-            setUser(null);
-            setHasChosenEnvironment(false);
-          }}
+          onLogout={() => setHasChosenEnvironment(false)}
         />
 
         {/* Right side page workspace client frame */}

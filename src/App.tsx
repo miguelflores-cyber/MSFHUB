@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ActiveTab, Environment, Task, CalendarEvent, StudentProfile } from './types';
 import {
   INITIAL_PROFILE,
@@ -14,13 +14,58 @@ import TasksView from './components/TasksView';
 import CalendarView from './components/CalendarView';
 import SettingsView from './components/SettingsView';
 import EnvironmentSelector from './components/EnvironmentSelector';
+import LoginScreen from './components/LoginScreen';
+import { getCurrentUser, signOutUser } from './lib/auth';
+import { supabase } from './lib/supabase';
 
 export default function App() {
   // Global States
+  const [user, setUser] = useState<{ email: string; name?: string } | null>(() => getCurrentUser());
+  const [loadingSession, setLoadingSession] = useState(true);
   const [environment, setEnvironment] = useState<Environment>('CEUB');
   const [hasChosenEnvironment, setHasChosenEnvironment] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
-  const [profile, setProfile] = useState<StudentProfile>(INITIAL_PROFILE);
+  const [profile, setProfile] = useState<StudentProfile>(() => {
+    const currentUser = getCurrentUser();
+    return {
+      ...INITIAL_PROFILE,
+      name: currentUser?.name || INITIAL_PROFILE.name,
+      email: currentUser?.email || INITIAL_PROFILE.email,
+    };
+  });
+
+  // Check active session on app load using supabase from src/lib/supabase.ts
+  useEffect(() => {
+    const checkActiveSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const loadedUser = {
+            email: session.user.email || '',
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Estudante',
+          };
+          setUser(loadedUser);
+          setProfile((prev) => ({
+            ...prev,
+            name: loadedUser.name,
+            email: loadedUser.email,
+          }));
+        } else {
+          // Fallback to check localStorage local session
+          const localUser = getCurrentUser();
+          if (localUser) {
+            setUser(localUser);
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao recuperar sessão ativa via Supabase:', err);
+      } finally {
+        setLoadingSession(false);
+      }
+    };
+    checkActiveSession();
+  }, []);
+
   const [tasks, setTasks] = useState<Task[]>(() => {
     return [...INITIAL_CEUB_TASAS, ...INITIAL_CIL_TASKS];
   });
@@ -125,6 +170,30 @@ export default function App() {
     }
   };
 
+  const handleLoginSuccess = (userInfo: { name: string; email: string }) => {
+    setUser(userInfo);
+    setProfile((prev) => ({
+      ...prev,
+      name: userInfo.name,
+      email: userInfo.email,
+    }));
+  };
+
+  if (loadingSession) {
+    return (
+      <div id="session-initial-loader" className="min-h-screen w-screen flex flex-col md:flex-row bg-[#07050f] justify-center items-center">
+        <div className="text-white text-center space-y-4">
+          <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-xs font-mono text-purple-400">Carregando portal seguro...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen onSuccess={handleLoginSuccess} />;
+  }
+
   if (!hasChosenEnvironment) {
     return (
       <EnvironmentSelector
@@ -185,7 +254,12 @@ export default function App() {
             setActiveTab('tarefas');
             setIsNewTaskModalOpen(true);
           }}
-          onLogout={() => setHasChosenEnvironment(false)}
+          onLogout={async () => {
+            await supabase.auth.signOut();
+            signOutUser();
+            setUser(null);
+            setHasChosenEnvironment(false);
+          }}
         />
 
         {/* Right side page workspace client frame */}
